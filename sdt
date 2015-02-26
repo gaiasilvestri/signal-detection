@@ -1,50 +1,54 @@
-% MATLAB CODE: SDT simulation standard version 
+% SIGNAL DETECTION THEORY simulation  
 % Gaia Silvestri 
 % 10th October 2013
 
-tdp=2; %theoretical d' tisubc=1; %Ic
-nsamp=1000000; %number of samples
-nhit=0; %number
-nfa=0; %number
-phit=0; %P(HIT)
-pfa=0; %P(FA)
-zhit=0; %Z(HIT)
-zfa=0; %Z(FA)
-ohit=0; %O(HIT)
-ofa=0; %O(FA) height of signal absent curve at pos Z(FA) nruns=10000; %number of runs
-calcdps=zeros(nruns,1); %vector holding calculated dp value for each run (1st run's dp @ 1st index etc.)
-calcbetas=zeros(nruns,1); %vector holding calculated Beta value for each run (1st run's beta @ 1st index etc.)
+%SDT STANDARD VERSION
+tdp=2;          %theoretical d' 
+tisubc=1;       %Ic
+nsamp=1000000;  %number of samples
+nhit=0;         %number of hits
+nfa=0;          %number of false alarms
+phit=0;         %P(HIT)
+pfa=0;          %P(FA)
+zhit=0;         %Z(HIT)
+zfa=0;          %Z(FA)
+ohit=0;         %O(HIT)
+ofa=0;          %O(FA) height of signal absent curve at pos Z(FA) nruns=10000; %number of runs
+calcdps=zeros(nruns,1);     %vector holding calculated dp value for each run (1st run's dp @ 1st index etc.)
+calcbetas=zeros(nruns,1);   %vector holding calculated Beta value for each run (1st run's beta @ 1st index etc.)
 
 
 for i=1:nruns
-    nhit=0; %number of hits
-    nfa=0; %number of false alarms %signal absent trials vector SA=randn(nsamp,1);
+    nhit=0;     %number of hits
+    nfa=0;      %number of false alarms 
     
+    %signal absent trials vector 
+    SA=randn(nsamp,1);
     %signal present trials vector
     SP=randn(nsamp,1)+tdp;
     
-    % compute sum of hits (nhit) and false alarms (nfa) [elements in vector % larger than tisubc]
+    %compute sum of hits (nhit) and false alarms (nfa) [elements in vector % larger than tisubc]
     nhit=sum(SP>tisubc);
     nfa=sum(SA>tisubc);
     
     % compute p(HIT) and p(FA)
-    phit= nhit/nsamp; pfa=nfa/nsamp;
+    phit= nhit/nsamp; 
+    pfa=nfa/nsamp;
     
     % get z(HIT) and z(FA) to compute dprime
-    zhit=(-1)*((phit^(0.14) - ((1-phit)^0.14))/0.2); zfa=(-1)*((pfa^(0.14) - ((1-pfa)^0.14))/0.2);
+    zhit=(-1)*((phit^(0.14) - ((1-phit)^0.14))/0.2); 
+    zfa=(-1)*((pfa^(0.14) - ((1-pfa)^0.14))/0.2);
     dp=zfa-zhit;
     calcdps(i,1)=dp; %add latest calculated d' to vector holding d' values
     
     %get O(HIT) and O(FA) to compute beta
-    ohit= (2.718^(-(zhit^2)/2))/2.5; ofa= (2.718^(-(zfa^2)/2))/2.5;
+    ohit= (2.718^(-(zhit^2)/2))/2.5; 
+    ofa= (2.718^(-(zfa^2)/2))/2.5;
     beta=ohit/ofa;
     calcbetas(i,1)=beta; %add to vector holding beta values the beta for this run i=i+1;
 end
 
-%PLOTTING
-of hits
-of false alarms
-height of signal present curve at pos Z(HIT)
+%PLOTTING of hits, of false alarms, height of signal present curve at pos Z(HIT)
 
 f2=figure;hold on
 title('Signal present and signal absent distribution curves','FontWeight','bold') hist(SA,100);
@@ -54,63 +58,3 @@ hist(SP,100);
 h1 = findobj(gca,'Type','patch');
 set(h1,'facealpha',0.55);
 plot(calcbetas,'.'); plot(calcdps, '.');
-
-
-%  SDT simulation variant with varying criterion Ic.
-
-tdp=1; %theoretical d' tisubc=0.5; %Ic
-nsamp=1000000; %number of samples
-nhit=0; %number
-nfa=0; %number
-phit=0; %P(HIT)
-pfa=0; %P(FA)
-zhit=0; %Z(HIT)
-zfa=0; %Z(FA)
-ohit=0; %O(HIT)
-ofa=0; %O(FA) height of signal absent curve at pos Z(FA) nruns=1000; %number of runs
-calcdps=zeros(nruns,1); %vector holding calculated dp value for each run calcbetas=zeros(nruns,1); %vector holding calculated Beta value for each run for i=1:nruns
-nhit=0; %number of hits
-nfa=0; %number of false alarms
-%signal absent trials vector
-SA=randn(nsamp,1);
-%signal present trials vector
-SP=randn(nsamp,1)+tdp;
-%Ic sampled from normal distribution with mean at crossover point of SP and %SA curves, varying standard deviation with values: 0.5,1,2,20. IC=0.5+20.*randn(nsamp,1);
-
-% compute number of hits (nhit) and false alarms (nfa) [elements in vector % larger than tisubc]
-boolhit=SP>IC;
-boolfa=SA>IC;
-nhit=numel(boolhit(boolhit==1)); nfa=numel(boolfa(boolfa==1));
-
-% compute p(HIT) and p(FA)
-phit= nhit/nsamp; pfa=nfa/nsamp;
-of hits
-of false alarms
-height of signal present curve at pos Z(HIT)
-
-% get z(HIT) and z(FA) to compute dprime
-zhit=(-1)*((phit^(0.14) - ((1-phit)^0.14))/0.2); zfa=(-1)*((pfa^(0.14) - ((1-pfa)^0.14))/0.2);
-dp=zfa-zhit;
-
-%add latest calculated d' to vector holding d' values
-calcdps(i,1)=dp;
-
-%get O(HIT) and O(FA) to compute beta
-ohit= (2.718^(-(zhit^2)/2))/2.5; ofa= (2.718^(-(zfa^2)/2))/2.5;
-beta=ohit/ofa;
-calcbetas(i,1)=beta; %add to vector holding beta values the beta for this run
-end
-
-%PLOTTING
-f2=figure;hold on
-title('Signal present and signal absent distribution curves','FontWeight','bold') hist(SA,100);
-h = findobj(gca,'Type','patch'); set(h,'FaceColor','r','EdgeColor','w','facealpha',0.55)
-hold on;
-hist(SP,100);
-h1 = findobj(gca,'Type','patch');
-set(h1,'facealpha', 0.55);
-hold on;
-hist(IC,100);
-h1 = findobj(gca,'Type','patch');
-set(h1,'facealpha',0.30);
-plot(calcbetas,'.') plot(calcdps, '.')
